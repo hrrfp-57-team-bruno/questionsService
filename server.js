@@ -1,6 +1,12 @@
 const express = require('express')
 const db = require('./database.js')
+const cors =require('cors');
 const app = express()
+
+
+app.use(cors({
+  origin: '*',
+}));
 
 app.listen(3333, () => {
   console.log('Listening on Port 3333')
@@ -15,5 +21,4 @@ app.get('/', (req, res) => {
       res.send(response.rows);
     }
   })
-  // res.send('YOU HIT IT')
 })
