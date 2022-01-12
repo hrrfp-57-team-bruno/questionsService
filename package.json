@@ -2,8 +2,9 @@
   "name": "questionsservice",
   "version": "1.0.0",
   "description": "Questions and Answer Service for SDC",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
+    "start": "nodemon server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,6 +19,7 @@
   "homepage": "https://github.com/hrrfp-57-team-bruno/questionsService#readme",
   "dependencies": {
     "express": "^4.17.2",
+    "nodemon": "^2.0.15",
     "postgres": "^1.0.2"
   }
 }
