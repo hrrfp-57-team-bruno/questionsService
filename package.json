@@ -1,0 +1,23 @@
+{
+  "name": "questionsservice",
+  "version": "1.0.0",
+  "description": "Questions and Answer Service for SDC",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/hrrfp-57-team-bruno/questionsService.git"
+  },
+  "author": "Ryne Cichella",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/hrrfp-57-team-bruno/questionsService/issues"
+  },
+  "homepage": "https://github.com/hrrfp-57-team-bruno/questionsService#readme",
+  "dependencies": {
+    "express": "^4.17.2",
+    "postgres": "^1.0.2"
+  }
+}
