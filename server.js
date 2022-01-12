@@ -7,12 +7,13 @@ app.listen(3333, () => {
 })
 
 app.get('/', (req, res) => {
-  db.query('SELECT *', (err, response) => {
+  db.query('SELECT * from questions where productid=40433', (err, response) => {
     if (err) {
       console.log(err)
     } else {
-      console.log(response);
+      console.log(response.rows);
+      res.send(response.rows);
     }
   })
-  res.send('YOU HIT IT')
+  // res.send('YOU HIT IT')
 })
