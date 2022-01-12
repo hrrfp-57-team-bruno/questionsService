@@ -1,4 +1,5 @@
 const express = require('express')
+const sql = require('./database.js')
 const app = express()
 
 app.listen(3333)
