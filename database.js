@@ -1,5 +1,14 @@
-const postgres = require('postgres')
+const { Pool ,Client } = require('pg')
 
-const sql = postgres()
+const client = new Client({
+  user: 'graysteptestig',
+  database: 'sdc',
+  port: 5432
+})
 
-module.exports = sql
+client.connect()
+
+
+
+
+module.exports = client
