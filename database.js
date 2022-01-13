@@ -9,13 +9,13 @@ const client = new Client({
 client.connect()
 
 client.query(`
-CREATE TABLE IF NOT EXISTS questions (
-  id SERIAL PRIMARY KEY,
+  CREATE TABLE IF NOT EXISTS questions (
+  question_main_id SERIAL PRIMARY KEY,
   productid INT NOT NULL,
-  body TEXT NOT NULL,
-  datewritten TEXT NOT NULL,
-  askername TEXT NOT NULL,
-  askeremail TEXT NOT NULL,
+  question_body VARCHAR(1000) NOT NULL,
+  question_datewritten BIGINT NOT NULL,
+  askername VARCHAR(60) NOT NULL,
+  askeremail VARCHAR(60) NOT NULL,
   reported INT,
   helpful INT
   );`
@@ -23,42 +23,42 @@ CREATE TABLE IF NOT EXISTS questions (
   if (err) {
     console.log(err)
   } else {
-    console.log(res);
+    // console.log(res);
   }
 })
 
 client.query(`
   CREATE TABLE IF NOT EXISTS answers (
-  id SERIAL PRIMARY KEY,
+  answer_main_id SERIAL PRIMARY KEY,
   questionid INT,
-  body TEXT NOT NULL,
-  datewritten TEXT NOT NULL,
-  answerername TEXT NOT NULL,
-  answereremail TEXT NOT NULL,
-  reported INT,
-  helpful INT,
-  FOREIGN KEY(questionid) REFERENCES questions(id)
+  answer_body VARCHAR(1000) NOT NULL,
+  answer_datewritten BIGINT NOT NULL,
+  answerername VARCHAR(60) NOT NULL,
+  answereremail VARCHAR(60) NOT NULL,
+  answer_reported INT,
+  answer_helpful INT,
+  FOREIGN KEY(questionid) REFERENCES questions(question_main_id)
   );`
   , (err, res) => {
   if (err) {
     console.log(err)
   } else {
-    console.log(res);
+    // console.log(res);
   }
 })
 
 client.query(`
   CREATE TABLE IF NOT EXISTS answerphotos (
-  id SERIAL PRIMARY KEY,
-  answerid INT,
-  photourl TEXT NOT NULL,
-  FOREIGN KEY(answerid) REFERENCES answers(id)
+  photo_main_id SERIAL PRIMARY KEY,
+  photo_answerid INT,
+  photourl VARCHAR(384) NOT NULL,
+  FOREIGN KEY(photo_answerid) REFERENCES answers(answer_main_id)
   );`
   , (err, res) => {
   if (err) {
     console.log(err)
   } else {
-    console.log(res);
+    // console.log(res);
   }
 })
 
