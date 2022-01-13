@@ -27,3 +27,12 @@ CREATE TABLE IF NOT EXISTS answerphotos (
   photourl TEXT NOT NULL,
   FOREIGN KEY(answerid) REFERENCES answers(id)
 );
+
+/*
+  To get data into database
+
+  copy questions(id, productId, body, dateWritten, askerName, askerEmail, reported, helpful)
+  from '/XXX/questions.csv'
+  DELIMITER ','
+  CSV HEADER;
+*/
