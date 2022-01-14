@@ -36,7 +36,13 @@ CREATE TABLE IF NOT EXISTS answerphotos (
   DELIMITER ','
   CSV HEADER;
 
+  THESE ARE SUPER IMPORTANT FOR PERFORMANCE -- PLEASE BAKE INTO SCHEMA
+
   create index idx_product_id on questions(productid);
+
+  create index idx_question_id on answers(questionid);
+
+  create index idx_photo_answerid on answerphotos(photo_answerid);
 
 
 */

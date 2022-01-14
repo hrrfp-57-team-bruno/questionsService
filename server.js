@@ -15,12 +15,12 @@ app.listen(3333, () => {
 app.get('/qa/questions', (req, res) => {
   console.log(req.query)
   let passedValue = req.query.product_id
-  let limit = req.query.count
-  db.query(`SELECT * from questions inner join answers on questions.question_main_id = answers.questionid left join answerphotos on answerphotos.photo_answerid = answers.answer_main_id where questions.productid = ${passedValue} LIMIT ${Number(limit)};`, (err, response) => {
+  let limit = Number(req.query.count) || null
+  db.query(`SELECT * from questions inner join answers on questions.question_main_id = answers.questionid left join answerphotos on answerphotos.photo_answerid = answers.answer_main_id where questions.productid = ${passedValue} LIMIT ${limit};`, (err, response) => {
     if (err) {
       console.log(err)
     } else {
-      console.log(response.rows);
+      // console.log(response.rows);
       let reviewCheck = [];
       let queryResults = {
         "product": passedValue,
