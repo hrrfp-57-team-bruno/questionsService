@@ -20,7 +20,7 @@ app.get('/qa/questions', (req, res) => {
     if (err) {
       console.log(err)
     } else {
-      console.log(response.rows);
+      // console.log(response.rows);
       let reviewCheck = [];
       let queryResults = {
         "product": passedValue,
@@ -94,15 +94,9 @@ app.get('/qa/questions', (req, res) => {
 
 app.get('/qa/questions/:question_id/answers', (req, res) => {
   let questionId = req.params.question_id;
+  let answerResultsArray = [];
   console.log(questionId);
-  // db.query(`SELECT * from answers left join answerphotos on answerphotos.photo_answerid = answers.answer_main_id where answers.questionid = ${questionId}`, (err, response) => {
-  //   if (err) {
-  //     console.log(err);
-  //   } else {
-  //     console.log(response.rows);
-  //   }
-  // })
-  db.query(`SELECT * from answerphotos right join answers on answers.answer_main_id = answerphotos.photo_answerid where answers.questionid = ${questionId}`, (err, response) => {
+   db.query(`SELECT * from answers left join answerphotos on answerphotos.photo_answerid = answers.answer_main_id where answers.questionid = ${questionId}` , (err, response) => {
     if (err) {
       console.log(err)
     } else {
@@ -114,11 +108,3 @@ app.get('/qa/questions/:question_id/answers', (req, res) => {
 
 
 
-
-/*
-SELECT * FROM answers INNER JOIN questions ON questions.question_main_id = answers.questionid LEFT JOIN answerphotos ON answerphotos.photo_answerid = answers.answer_main_id WHERE answers.questionid = ${questionId}
-
-
-
-select * from answers inner join questions on questions.question_main_id = answers.questionid where answers.questionid = ${questionId}
-*/
