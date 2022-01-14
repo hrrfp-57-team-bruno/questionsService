@@ -36,5 +36,7 @@ CREATE TABLE IF NOT EXISTS answerphotos (
   DELIMITER ','
   CSV HEADER;
 
+  create index idx_product_id on questions(productid);
+
 
 */
