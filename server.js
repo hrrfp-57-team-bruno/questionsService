@@ -15,10 +15,10 @@ app.listen(3333, () => {
 })
 
 app.get('/qa/questions', (req, res) => {
-  console.log(req.query)
+  // console.log(req.query)
   let passedValue = req.query.product_id
   let limit = Number(req.query.count) || null
-  db.query(`SELECT * from questions inner join answers on questions.question_main_id = answers.questionid left join answerphotos on answerphotos.photo_answerid = answers.answer_main_id where questions.productid = ${passedValue} LIMIT ${limit};`, (err, response) => {
+  db.query(`select * from questions left join answers on answers.questionid = questions.question_main_id left join answerphotos on answerphotos.photo_answerid = questions.question_main_id where productid = ${passedValue} limit ${limit};`, (err, response) => {
     if (err) {
       console.log(err)
     } else {
@@ -30,9 +30,16 @@ app.get('/qa/questions', (req, res) => {
       };
       response.rows.forEach((review, index) => {
         if (queryResults.results[review.questionid] !== undefined) {
-          if (queryResults.results[review.questionid].answers[review.answer_main_id] !== undefined && review.photourl !== null) {
+          if (review.photourl !== null) {
             // console.log('this is a defined answer and probably needs a photo')
-            queryResults.results[review.questionid].answers[review.answer_main_id].photos.push(review.photourl)
+            // console.log( queryResults.results[review.question_main_id].answers[review.answer_main_id])
+            if (Object.keys(queryResults.results[review.question_main_id].answers).length !== 0) {
+              // console.log('WTF:::', review)
+              //ADD LOGIC HERE TO ADD ANSWER TO ANSWER ARRAY FOR THIS PARTICULAR REVIEW F**KED UP LOGIC??
+            } else {
+              // console.log('THIS IS RUNNING')
+              queryResults.results[review.question_main_id].answers[review.answer_main_id].photos.push(review.photourl)
+            }
           } else {
             // console.log('this isnt a defined answer')
             let answerPhotoArray = [];
@@ -52,7 +59,7 @@ app.get('/qa/questions', (req, res) => {
         } else {
           let br = {};
           let brDate = new Date(Number(review.question_datewritten))
-          br.question_id = review.questionid;
+          br.question_id = review.question_main_id;
           br.question_body = review.question_body;
           br.question_date = brDate.toISOString();
           br.asker_name = review.askername;
@@ -64,6 +71,9 @@ app.get('/qa/questions', (req, res) => {
           }
           br.answers = {};
           if (review.answer_main_id === undefined || review.answer_main_id === null) {
+            // console.log(br)
+            reviewCheck.push(review.question_main_id);
+            queryResults.results[review.question_main_id] = br;
             return;
           } else {
             let answerPhotoArray = [];
@@ -80,8 +90,8 @@ app.get('/qa/questions', (req, res) => {
               'photos' : answerPhotoArray
             }
           }
-          reviewCheck.push(review.questionid);
-          queryResults.results[review.questionid] = br;
+          reviewCheck.push(review.question_main_id);
+          queryResults.results[review.question_main_id] = br;
         }
       })
       let convertResultsToArray = [];
@@ -89,7 +99,7 @@ app.get('/qa/questions', (req, res) => {
         convertResultsToArray.push(queryResults.results[key]);
       }
       queryResults.results = convertResultsToArray;
-      res.send(queryResults);
+      res.status(200).send('GG');
     }
   })
 })
@@ -97,7 +107,7 @@ app.get('/qa/questions', (req, res) => {
 app.get('/qa/questions/:question_id/answers', (req, res) => {
   let questionId = req.params.question_id;
   let answerResultsArray = [];
-  console.log(questionId);
+  // console.log(questionId);
    db.query(`SELECT * from answers left join answerphotos on answerphotos.photo_answerid = answers.answer_main_id where answers.questionid = ${questionId}` , (err, response) => {
     if (err) {
       console.log(err)
@@ -140,14 +150,31 @@ app.get('/qa/questions/:question_id/answers', (req, res) => {
       };
       qRes.results = convertResultsToArray;
       qRes.count = convertResultsToArray.length;
-      res.send(qRes);
+      res.status(200).send(qRes);
+    }
+  })
+})
+
+app.post('/qa/questions', (req, res) => {
+  console.log(req.body);
+  let productId = Number(req.body.product_id);
+  let qBody = req.body.body;
+  let qDate = Date.now();
+  let qName = req.body.name;
+  let qEmail = req.body.email;
+  let qRep = 0;
+  let qHelp = 0;
+  db.query(`insert into questions(question_main_id, productid, question_body, question_datewritten, askername, askeremail, reported, helpful) values(DEFAULT, ${productId}, '${qBody}', ${qDate}, '${qName}', '${qEmail}', ${qRep}, ${qHelp}) returning *;`, (err, response) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(response);
+      res.status(201).send('Good Game');
     }
   })
 })
 
 app.post('/qa/questions/:question_id/answers', (req, res) => {
-  console.log(req.body);
-  console.log(req.params);
   let questionId = Number(req.params.question_id);
   let aBody = req.body.body;
   let aDate = Date.now();
@@ -162,16 +189,19 @@ app.post('/qa/questions/:question_id/answers', (req, res) => {
     } else {
       if (photos.length > 0) {
         let answerId = response.rows[0].answer_main_id;
-        photos.forEach(url => {
+        photos.forEach((url, index) => {
           db.query(`insert into answerphotos(photo_main_id, photo_answerid, photourl) VALUES(DEFAULT, ${answerId}, '${url}') returning *`, (err, response) => {
             if (err) {
               console.log(err);
             } else {
-              // console.log(response);
+              if (index === photos.length - 1) {
+                res.status(201).send('Good Game');
+              }
             }
           })
         })
       } else {
+        res.status(201).send('Good Game');
         return;
       }
     }

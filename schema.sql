@@ -49,5 +49,9 @@ CREATE TABLE IF NOT EXISTS answerphotos (
 
   create index idx_photo_answerid on answerphotos(photo_answerid);
 
+  select * from questions left join answers on answers.questionid = questions.question_main_id left join answerphotos on answerphotos.photo_answerid = questions.question_main_id where productid = 40355 limit 50;
+
+  select * from questions inner join answers on questions.question_main_id = answers.questionid left join answerphotos on answerphotos.photo_answerid = answers.answer_main_id where questions.productid = ${passedValue} LIMIT ${limit};
+
 
 */
