@@ -160,7 +160,20 @@ app.post('/qa/questions/:question_id/answers', (req, res) => {
     if (err) {
       console.log(err);
     } else {
-      console.log(response);
+      if (photos.length > 0) {
+        let answerId = response.rows[0].answer_main_id;
+        photos.forEach(url => {
+          db.query(`insert into answerphotos(photo_main_id, photo_answerid, photourl) VALUES(DEFAULT, ${answerId}, '${url}') returning *`, (err, response) => {
+            if (err) {
+              console.log(err);
+            } else {
+              // console.log(response);
+            }
+          })
+        })
+      } else {
+        return;
+      }
     }
   })
 })
