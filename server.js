@@ -8,6 +8,8 @@ app.use(cors({
   origin: true,
 }));
 
+app.use(express.json());
+
 app.listen(3333, () => {
   console.log('Listening on Port 3333')
 })
@@ -100,10 +102,67 @@ app.get('/qa/questions/:question_id/answers', (req, res) => {
     if (err) {
       console.log(err)
     } else {
-      console.log(response.rows)
+      // console.log(response.rows)
+      let qRes = {
+        question: questionId,
+        count: 0,
+        results: {}
+      };
+      response.rows.forEach(a => {
+        if (qRes.results[a.answer_main_id] !== undefined) {
+          let photoObj = {};
+            photoObj.id = a.photo_main_id;
+            photoObj.url = a.photourl;
+            qRes.results[a.answer_main_id].photos.push(photoObj);
+            return;
+        } else {
+          let an = {};
+          let anDate = new Date(Number(a.answer_datewritten));
+          let anPhotos = [];
+          if (a.photourl !== null) {
+            let photoObj = {};
+            photoObj.id = a.photo_main_id;
+            photoObj.url = a.photourl;
+            anPhotos.push(photoObj);
+          };
+          an.answer_id = a.answer_main_id,
+          an.body = a.answer_body,
+          an.date = anDate.toISOString(),
+          an.answerer_name = a.answerername,
+          an.helpfulness = a.answer_helpful,
+          an.photos = anPhotos
+          qRes.results[a.answer_main_id] = an;
+        }
+      })
+      let convertResultsToArray = [];
+      for (var key in qRes.results) {
+        convertResultsToArray.push(qRes.results[key]);
+      };
+      qRes.results = convertResultsToArray;
+      qRes.count = convertResultsToArray.length;
+      res.send(qRes);
     }
   })
-  res.end();
+})
+
+app.post('/qa/questions/:question_id/answers', (req, res) => {
+  console.log(req.body);
+  console.log(req.params);
+  let questionId = Number(req.params.question_id);
+  let aBody = req.body.body;
+  let aDate = Date.now();
+  let aName = req.body.name;
+  let aEmail = req.body.email;
+  let aRep = 0;
+  let aHelp = 0;
+  let photos = req.body.photos;
+  db.query(`INSERT INTO answers(answer_main_id, questionid, answer_body, answer_datewritten, answerername, answereremail, answer_reported, answer_helpful) VALUES (DEFAULT, ${questionId}, '${aBody}', ${aDate}, '${aName}', '${aEmail}', ${aRep}, ${aHelp} ) returning * ;`, (err, response) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(response);
+    }
+  })
 })
 
 
