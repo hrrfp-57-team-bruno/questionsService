@@ -18,7 +18,7 @@ app.get('/qa/questions', (req, res) => {
   // console.log(req.query)
   let passedValue = req.query.product_id
   let limit = Number(req.query.count) || null
-  db.query(`select * from questions left join answers on answers.questionid = questions.question_main_id left join answerphotos on answerphotos.photo_answerid = questions.question_main_id where productid = ${passedValue} limit ${limit};`, (err, response) => {
+  db.query(`select * from questions inner join answers on answers.questionid = questions.question_main_id left join answerphotos on answerphotos.photo_answerid = questions.question_main_id where productid = ${passedValue} limit ${limit};`, (err, response) => {
     if (err) {
       console.log(err)
     } else {
@@ -30,12 +30,15 @@ app.get('/qa/questions', (req, res) => {
       };
       response.rows.forEach((review, index) => {
         if (queryResults.results[review.questionid] !== undefined) {
-          if (review.photourl !== null) {
+          if (Object.keys(queryResults.results[review.question_main_id].answers).length !== 0 && review.photourl !== null) {
             // console.log('this is a defined answer and probably needs a photo')
             // console.log( queryResults.results[review.question_main_id].answers[review.answer_main_id])
             if (Object.keys(queryResults.results[review.question_main_id].answers).length !== 0) {
               // console.log('WTF:::', review)
-              //ADD LOGIC HERE TO ADD ANSWER TO ANSWER ARRAY FOR THIS PARTICULAR REVIEW F**KED UP LOGIC??
+              // console.log('WTF in QUERY RESULTS', queryResults.results[review.question_main_id])
+              // queryResults.results[review.question_main_id].answers[answer_main_id] = {
+
+              // }
             } else {
               // console.log('THIS IS RUNNING')
               queryResults.results[review.question_main_id].answers[review.answer_main_id].photos.push(review.photourl)
@@ -99,10 +102,24 @@ app.get('/qa/questions', (req, res) => {
         convertResultsToArray.push(queryResults.results[key]);
       }
       queryResults.results = convertResultsToArray;
-      res.status(200).send('GG');
+      res.status(200).send(queryResults);
     }
   })
 })
+
+// app.get('/qa/questions', (req, res) => {
+//   // console.log(req.query)
+//   let passedValue = req.query.product_id
+//   let limit = Number(req.query.count) || null
+//   db.query(`select * from questions inner join answers on answers.questionid = questions.question_main_id left join answerphotos on answerphotos.photo_answerid = questions.question_main_id where productid = ${passedValue} limit ${limit};`, (err, response) => {
+//     if (err) {
+//       console.log(err)
+//     } else {
+//       // console.log(response.rows);
+//       res.status(200).send(response.rows);
+//     }
+//   })
+// })
 
 app.get('/qa/questions/:question_id/answers', (req, res) => {
   let questionId = req.params.question_id;
@@ -156,7 +173,7 @@ app.get('/qa/questions/:question_id/answers', (req, res) => {
 })
 
 app.post('/qa/questions', (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   let productId = Number(req.body.product_id);
   let qBody = req.body.body;
   let qDate = Date.now();
@@ -164,11 +181,10 @@ app.post('/qa/questions', (req, res) => {
   let qEmail = req.body.email;
   let qRep = 0;
   let qHelp = 0;
-  db.query(`insert into questions(question_main_id, productid, question_body, question_datewritten, askername, askeremail, reported, helpful) values(DEFAULT, ${productId}, '${qBody}', ${qDate}, '${qName}', '${qEmail}', ${qRep}, ${qHelp}) returning *;`, (err, response) => {
+  db.query(`insert into questions(question_main_id, productid, question_body, question_datewritten, askername, askeremail, reported, helpful) values(DEFAULT, ${productId}, '${qBody}', ${qDate}, '${qName}', '${qEmail}', ${qRep}, ${qHelp});`, (err, response) => {
     if (err) {
       console.log(err);
     } else {
-      console.log(response);
       res.status(201).send('Good Game');
     }
   })
@@ -207,6 +223,54 @@ app.post('/qa/questions/:question_id/answers', (req, res) => {
     }
   })
 })
+
+app.put('/qa/questions/:question_id/helpful', (req, res) => {
+  //needs question_id
+  let questionId = req.params.question_id;
+  db.query(`update questions set helpful = helpful + 1 where question_main_id = ${questionId};`, (err, response) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.status(204).send('Good Game');
+    }
+  })
+});
+
+app.put('/qa/questions/:question_id/report', (req, res) => {
+  //needs question_id
+  let questionId = req.params.question_id;
+  db.query(`update questions set reported = reported + 1 where question_main_id = ${questionId};`, (err, response) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.status(204).send('Good Game');
+    }
+  })
+});
+
+app.put('/qa/answers/:answer_id/helpful', (req, res) => {
+  //needs answer_id
+  let answerId = req.params.answer_id;
+  db.query(`update answers set answer_helpful = answer_helpful + 1 where answer_main_id = ${answerId};`, (err, response) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.status(204).send('Good Game');
+    }
+  })
+});
+
+app.put('/qa/answers/:answer_id/report', (req, res) => {
+  //needs answer_id
+  let answerId = req.params.answer_id;
+  db.query(`update answers set answer_reported = answer_reported + 1 where answer_main_id = ${answerId};`, (err, response) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.status(204).send('Good Game');
+    }
+  })
+});
 
 
 
