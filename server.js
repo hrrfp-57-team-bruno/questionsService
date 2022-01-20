@@ -14,6 +14,16 @@ app.listen(3333, () => {
   console.log('Listening on Port 3333')
 })
 
+/*
+app.get('/loaderio-c8765f074d4085399f70175e211ca215', (req, res) => {
+  res.sendFile('/home/ubuntu/loaderio-c8765f074d4085399f70175e211ca215.txt', (err) => {
+  if (err) {
+  console.log(err);
+    }
+  })
+});
+*/
+
 app.get('/qa/questions', (req, res) => {
   // console.log(req.query)
   let passedValue = req.query.product_id
